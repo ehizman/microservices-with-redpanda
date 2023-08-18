@@ -1,0 +1,43 @@
+version: '3'
+services:
+  mongo_db:
+    image: mongo:latest
+    container_name: "mongo_db"
+    ports:
+      - "27017:27017"
+    networks:
+      - e_com_network
+
+  webapp:
+    build:
+      context: ./web_app
+    container_name: "webapp"
+    ports:
+      - "8000:8000"
+    networks:
+      - e_com_network
+    environment:
+      INVENTORY_APP_URL: http://inventory_app:8001 # Use service name and port
+      PROFILE: docker
+    depends_on:
+      - inventory
+
+  inventory:
+    build:
+      context: ./inventory
+    container_name: inventory
+    ports:
+      - "8001:8001"
+    networks:
+      - e_com_network
+    environment:
+      PROFILE: docker
+    depends_on:
+      - mongo_db
+
+networks:
+  e_com_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
